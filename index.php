@@ -7,7 +7,8 @@ Author: Your Name
 */
 
 // Create custom table on plugin activation
-function plugin_activate() {
+function plugin_activate()
+{
     global $wpdb;
     $table_name = 'volunteer_opportunities';
 
@@ -25,18 +26,21 @@ function plugin_activate() {
     );";
     $wpdb->query($sql);
 }
-register_activation_hook( __FILE__, 'plugin_activate' );
+register_activation_hook(__FILE__, 'plugin_activate');
 
 // Drop custom table on plugin deactivation
-function plugin_deactivate() {
+function plugin_deactivate()
+{
     global $wpdb;
     $table_name = 'volunteer_opportunities';
     $sql = "DROP TABLE IF EXISTS $table_name";
     $wpdb->query($sql);
 }
-register_deactivation_hook( __FILE__, 'plugin_deactivate' );
+register_deactivation_hook(__FILE__, 'plugin_deactivate');
 
-function wp_events_admin_page_html() {
+// Render the admin page
+function wp_events_admin_page_html()
+{
     global $wpdb;
     $table_name = 'volunteer_opportunities';
 
@@ -51,7 +55,7 @@ function wp_events_admin_page_html() {
         $hours = intval($_POST['hours']);
         $skills_required = sanitize_text_field($_POST['skills_required']);
 
-        // Insert new row into the database
+        // Insert new opportunity
         $wpdb->insert(
             $table_name,
             [
@@ -67,26 +71,67 @@ function wp_events_admin_page_html() {
         );
     }
 
-    // Display the admin form for adding opportunities
-    ?>
+    // Handle updating a volunteer opportunity
+    if (isset($_GET['edit']) && isset($_GET['id'])) {
+        $id = intval($_GET['id']);
+        $row = $wpdb->get_row("SELECT * FROM $table_name WHERE id = $id");
+
+        if (isset($_POST['update'])) {
+            $position = sanitize_text_field($_POST['position']);
+            $organization = sanitize_text_field($_POST['organization']);
+            $type = sanitize_text_field($_POST['type']);
+            $email = sanitize_email($_POST['email']);
+            $description = sanitize_textarea_field($_POST['description']);
+            $location = sanitize_text_field($_POST['location']);
+            $hours = intval($_POST['hours']);
+            $skills_required = sanitize_text_field($_POST['skills_required']);
+
+            $wpdb->update(
+                $table_name,
+                [
+                    'position' => $position,
+                    'organization' => $organization,
+                    'type' => $type,
+                    'email' => $email,
+                    'description' => $description,
+                    'location' => $location,
+                    'hours' => $hours,
+                    'skills_required' => $skills_required,
+                ],
+                ['id' => $id]
+            );
+
+            // Clear $row to reset the form
+            unset($row);
+        }
+    }
+
+
+    // Display the admin form for adding/updating opportunities
+?>
     <div class="wrap">
         <h1>Volunteer Opportunities</h1>
         <form method="post">
-            <label>Position: </label><input type="text" name="position" required><br>
-            <label>Organization: </label><input type="text" name="organization" required><br>
+            <label>Position: </label><input type="text" name="position" value="<?php echo isset($row) ? esc_html($row->position) : ''; ?>" required><br>
+            <label>Organization: </label><input type="text" name="organization" value="<?php echo isset($row) ? esc_html($row->organization) : ''; ?>" required><br>
             <label>Type: </label>
             <select name="type">
-                <option value="one-time">One-Time</option>
-                <option value="recurring">Recurring</option>
-                <option value="seasonal">Seasonal</option>
+                <option value="one-time" <?php echo (isset($row) && $row->type == 'one-time') ? 'selected' : ''; ?>>One-Time</option>
+                <option value="recurring" <?php echo (isset($row) && $row->type == 'recurring') ? 'selected' : ''; ?>>Recurring</option>
+                <option value="seasonal" <?php echo (isset($row) && $row->type == 'seasonal') ? 'selected' : ''; ?>>Seasonal</option>
             </select><br>
-            <label>Email: </label><input type="email" name="email" required><br>
-            <label>Description: </label><textarea name="description" required></textarea><br>
-            <label>Location: </label><input type="text" name="location" required><br>
-            <label>Hours: </label><input type="number" name="hours" required><br>
-            <label>Skills Required: </label><input type="text" name="skills_required" required><br>
-            <input type="submit" name="submit" value="Add Opportunity">
+            <label>Email: </label><input type="email" name="email" value="<?php echo isset($row) ? esc_html($row->email) : ''; ?>" required><br>
+            <label>Description: </label><textarea name="description" required><?php echo isset($row) ? esc_html($row->description) : ''; ?></textarea><br>
+            <label>Location: </label><input type="text" name="location" value="<?php echo isset($row) ? esc_html($row->location) : ''; ?>" required><br>
+            <label>Hours: </label><input type="number" name="hours" value="<?php echo isset($row) ? esc_html($row->hours) : ''; ?>" required><br>
+            <label>Skills Required: </label><input type="text" name="skills_required" value="<?php echo isset($row) ? esc_html($row->skills_required) : ''; ?>" required><br>
+            <?php if (isset($row)) { ?>
+                <input type="submit" name="update" value="Update Opportunity">
+            <?php } else { ?>
+                <input type="submit" name="submit" value="Add Opportunity">
+            <?php } ?>
         </form>
+
 
         <?php
         // Display the list of volunteer opportunities
@@ -100,6 +145,7 @@ function wp_events_admin_page_html() {
                     <th>Type</th>
                     <th>Email</th>
                     <th>Hours</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -110,19 +156,19 @@ function wp_events_admin_page_html() {
                         <td><?php echo esc_html($row->type); ?></td>
                         <td><?php echo esc_html($row->email); ?></td>
                         <td><?php echo esc_html($row->hours); ?></td>
+                        <td>
+                            <a href="?page=volunteer_opportunity&edit=true&id=<?php echo $row->id; ?>">Edit</a> |
+                        </td>
                     </tr>
                 <?php } ?>
             </tbody>
         </table>
     </div>
-    <?php
+<?php
 }
-
 // Add Volunteer menu in admin panel
-function wp_events_admin() {
+function wp_events_admin()
+{
     add_menu_page('Volunteer Opportunities', 'Volunteer', 'manage_options', 'volunteer_opportunity', 'wp_events_admin_page_html', '', 20);
 }
 add_action('admin_menu', 'wp_events_admin');
-
-
-
