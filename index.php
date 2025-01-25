@@ -186,7 +186,6 @@ function wp_events_admin()
 {
     add_menu_page('Volunteer Opportunities', 'Volunteer', 'manage_options', 'volunteer_opportunity', 'wp_events_admin_page_html', '', 20);
 }
-
 add_action('admin_menu', 'wp_events_admin');
 
 function display_volunteer_opportunities($atts = [], $content = null)
@@ -216,7 +215,39 @@ function display_volunteer_opportunities($atts = [], $content = null)
     $where_clause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
     $results = $wpdb->get_results("SELECT * FROM $table_name $where_clause");
 
-    $output = '<table class="volunteer-table">
+    // Add custom styles for the table
+    $output = '<style>
+        .volunteer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .volunteer-table th,
+        .volunteer-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        .volunteer-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        .volunteer-table tr.green {
+            background-color: #eaffea;
+        }
+        .volunteer-table tr.yellow {
+            background-color: #fffbe0;
+        }
+        .volunteer-table tr.red {
+            background-color: #ffe0e0;
+        }
+        .volunteer-table td strong {
+            font-style: italic;
+        }
+    </style>';
+
+    // Generate the table HTML
+    $output .= '<table class="volunteer-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -233,9 +264,20 @@ function display_volunteer_opportunities($atts = [], $content = null)
         <tbody>';
 
     foreach ($results as $row) {
+        // Determine row background color based on hours
+        $row_class = '';
+        if (is_null($atts['hours']) && is_null($atts['type'])) {
+            if ($row->hours < 10) {
+                $row_class = 'green';
+            } elseif ($row->hours <= 100) {
+                $row_class = 'yellow';
+            } else {
+                $row_class = 'red';
+            }
+        }
 
         // Append rows to the output
-        $output .= '<tr>';
+        $output .= '<tr class="' . esc_attr($row_class) . '">';
         $output .= '<td>' . esc_html($row->id) . '</td>';
         $output .= '<td><strong>' . esc_html($row->position) . '</strong></td>';
         $output .= '<td>' . esc_html($row->organization) . '</td>';
