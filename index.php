@@ -70,6 +70,10 @@ function wp_events_admin_page_html()
             ]
         );
     }
+    // Handle deletion of a volunteer opportunity
+    if (isset($_GET['delete']) && isset($_GET['id'])) {
+        $wpdb->delete($table_name, ['id' => intval($_GET['id'])]);
+    }
 
     // Handle updating a volunteer opportunity
     if (isset($_GET['edit']) && isset($_GET['id'])) {
@@ -158,6 +162,7 @@ function wp_events_admin_page_html()
                         <td><?php echo esc_html($row->hours); ?></td>
                         <td>
                             <a href="?page=volunteer_opportunity&edit=true&id=<?php echo $row->id; ?>">Edit</a> |
+                            <a href="?page=volunteer_opportunity&delete=true&id=<?php echo $row->id; ?>">Delete</a>
                         </td>
                     </tr>
                 <?php } ?>
