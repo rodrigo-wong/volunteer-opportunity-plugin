@@ -162,7 +162,7 @@ function wp_events_admin_page_html()
                         <td><?php echo esc_html($row->hours); ?></td>
                         <td>
                             <a href="?page=volunteer_opportunity&edit=true&id=<?php echo $row->id; ?>">Edit</a> |
-                            <a href="?page=volunteer_opportunity&delete=true&id=<?php echo $row->id; ?>">Delete</a>
+                            <a href="?page=volunteer_opportunity&delete=true&id=<?php echo $row->id; ?>" onclick="return confirm('Are you sure you want to delete this opportunity?');">Delete</a>
                         </td>
                     </tr>
                 <?php } ?>
