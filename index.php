@@ -26,3 +26,13 @@ function plugin_activate() {
     $wpdb->query($sql);
 }
 register_activation_hook( __FILE__, 'plugin_activate' );
+
+// Drop custom table on plugin deactivation
+function plugin_deactivate() {
+    global $wpdb;
+    $table_name = 'volunteer_opportunities';
+    $sql = "DROP TABLE IF EXISTS $table_name";
+    $wpdb->query($sql);
+}
+register_deactivation_hook( __FILE__, 'plugin_deactivate' );
+
