@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Opportunity Plugin
 Description: A plugin to list volunteer opportunities.
 Version: 1.0
-Author: Your Name
+Author: Rodrigo Wong Mac #00087648
 */
 
 // Create custom table on plugin activation
@@ -213,7 +213,7 @@ function wp_events_admin_page_html()
                 <input type="text" id="skills_required" name="skills_required" value="<?php echo isset($row) ? esc_html($row->skills_required) : ''; ?>" required>
             </div>
 
-            <div >
+            <div>
                 <?php if (isset($row)) { ?>
                     <input type="submit" name="update" value="Update Opportunity">
                 <?php } else { ?>
