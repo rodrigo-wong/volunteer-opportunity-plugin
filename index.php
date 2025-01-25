@@ -254,6 +254,7 @@ function wp_events_admin_page_html()
                         <td><?php echo esc_html($row->hours); ?></td>
                         <td><?php echo esc_html($row->skills_required); ?></td>
                         <td>
+                            <!-- Use href to send get parameters since Form only supports POST method -->
                             <a href="?page=volunteer_opportunity&edit=true&id=<?php echo $row->id; ?>">Edit</a> |
                             <a href="?page=volunteer_opportunity&delete=true&id=<?php echo $row->id; ?>" onclick="return confirm('Are you sure you want to delete this opportunity?');">Delete</a>
                         </td>
