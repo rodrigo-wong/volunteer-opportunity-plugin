@@ -113,30 +113,114 @@ function wp_events_admin_page_html()
 
     // Display the admin form for adding/updating opportunities
 ?>
+    <style>
+        .volunteer-form {
+            width: 50%;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .form-group label {
+            width: 20%;
+            font-weight: bold;
+            text-align: left;
+            margin-right: 10px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 80%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .volunteer-form input[type="submit"] {
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .volunteer-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
     <div class="wrap">
         <h1>Volunteer Opportunities</h1>
-        <form method="post">
-            <label>Position: </label><input type="text" name="position" value="<?php echo isset($row) ? esc_html($row->position) : ''; ?>" required><br>
-            <label>Organization: </label><input type="text" name="organization" value="<?php echo isset($row) ? esc_html($row->organization) : ''; ?>" required><br>
-            <label>Type: </label>
-            <select name="type">
-                <option value="one-time" <?php echo (isset($row) && $row->type == 'one-time') ? 'selected' : ''; ?>>One-Time</option>
-                <option value="recurring" <?php echo (isset($row) && $row->type == 'recurring') ? 'selected' : ''; ?>>Recurring</option>
-                <option value="seasonal" <?php echo (isset($row) && $row->type == 'seasonal') ? 'selected' : ''; ?>>Seasonal</option>
-            </select><br>
-            <label>Email: </label><input type="email" name="email" value="<?php echo isset($row) ? esc_html($row->email) : ''; ?>" required><br>
-            <label>Description: </label><textarea name="description" required><?php echo isset($row) ? esc_html($row->description) : ''; ?></textarea><br>
-            <label>Location: </label><input type="text" name="location" value="<?php echo isset($row) ? esc_html($row->location) : ''; ?>" required><br>
-            <label>Hours: </label><input type="number" name="hours" value="<?php echo isset($row) ? esc_html($row->hours) : ''; ?>" required><br>
-            <label>Skills Required: </label><input type="text" name="skills_required" value="<?php echo isset($row) ? esc_html($row->skills_required) : ''; ?>" required><br>
-            <?php if (isset($row)) { ?>
-                <input type="submit" name="update" value="Update Opportunity">
-            <?php } else { ?>
-                <input type="submit" name="submit" value="Add Opportunity">
-            <?php } ?>
+
+        <form class="volunteer-form" method="post">
+            <div class="form-group">
+                <label for="position">Position:</label>
+                <input type="text" id="position" name="position" value="<?php echo isset($row) ? esc_html($row->position) : ''; ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="organization">Organization:</label>
+                <input type="text" id="organization" name="organization" value="<?php echo isset($row) ? esc_html($row->organization) : ''; ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="type">Type:</label>
+                <select id="type" name="type">
+                    <option value="one-time" <?php echo (isset($row) && $row->type == 'one-time') ? 'selected' : ''; ?>>One-Time</option>
+                    <option value="recurring" <?php echo (isset($row) && $row->type == 'recurring') ? 'selected' : ''; ?>>Recurring</option>
+                    <option value="seasonal" <?php echo (isset($row) && $row->type == 'seasonal') ? 'selected' : ''; ?>>Seasonal</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<?php echo isset($row) ? esc_html($row->email) : ''; ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required><?php echo isset($row) ? esc_html($row->description) : ''; ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" value="<?php echo isset($row) ? esc_html($row->location) : ''; ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="hours">Hours:</label>
+                <input type="number" id="hours" name="hours" value="<?php echo isset($row) ? esc_html($row->hours) : ''; ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="skills_required">Skills Required:</label>
+                <input type="text" id="skills_required" name="skills_required" value="<?php echo isset($row) ? esc_html($row->skills_required) : ''; ?>" required>
+            </div>
+
+            <div >
+                <?php if (isset($row)) { ?>
+                    <input type="submit" name="update" value="Update Opportunity">
+                <?php } else { ?>
+                    <input type="submit" name="submit" value="Add Opportunity">
+                <?php } ?>
+            </div>
         </form>
-
-
         <?php
         // Display the list of volunteer opportunities
         $results = $wpdb->get_results("SELECT * FROM $table_name");
@@ -266,15 +350,14 @@ function display_volunteer_opportunities($atts = [], $content = null)
     foreach ($results as $row) {
         // Determine row background color based on hours
         $row_class = '';
-        if (is_null($atts['hours']) && is_null($atts['type'])) {
-            if ($row->hours < 10) {
-                $row_class = 'green';
-            } elseif ($row->hours <= 100) {
-                $row_class = 'yellow';
-            } else {
-                $row_class = 'red';
-            }
+        if ($row->hours < 10) {
+            $row_class = 'green';
+        } elseif ($row->hours <= 100) {
+            $row_class = 'yellow';
+        } else {
+            $row_class = 'red';
         }
+
 
         // Append rows to the output
         $output .= '<tr class="' . esc_attr($row_class) . '">';
