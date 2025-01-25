@@ -144,22 +144,30 @@ function wp_events_admin_page_html()
         <table class="widefat striped">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Position</th>
                     <th>Organization</th>
                     <th>Type</th>
                     <th>Email</th>
+                    <th>Description</th>
+                    <th>Location</th>
                     <th>Hours</th>
+                    <th>Skills Required</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($results as $row) { ?>
                     <tr>
+                        <td><?php echo esc_html($row->id); ?></td>
                         <td><?php echo esc_html($row->position); ?></td>
                         <td><?php echo esc_html($row->organization); ?></td>
                         <td><?php echo esc_html($row->type); ?></td>
                         <td><?php echo esc_html($row->email); ?></td>
+                        <td><?php echo esc_html($row->description); ?></td>
+                        <td><?php echo esc_html($row->location); ?></td>
                         <td><?php echo esc_html($row->hours); ?></td>
+                        <td><?php echo esc_html($row->skills_required); ?></td>
                         <td>
                             <a href="?page=volunteer_opportunity&edit=true&id=<?php echo $row->id; ?>">Edit</a> |
                             <a href="?page=volunteer_opportunity&delete=true&id=<?php echo $row->id; ?>" onclick="return confirm('Are you sure you want to delete this opportunity?');">Delete</a>
@@ -168,6 +176,7 @@ function wp_events_admin_page_html()
                 <?php } ?>
             </tbody>
         </table>
+
     </div>
 <?php
 }
