@@ -180,9 +180,77 @@ function wp_events_admin_page_html()
     </div>
 <?php
 }
+
 // Add Volunteer menu in admin panel
 function wp_events_admin()
 {
     add_menu_page('Volunteer Opportunities', 'Volunteer', 'manage_options', 'volunteer_opportunity', 'wp_events_admin_page_html', '', 20);
 }
+
 add_action('admin_menu', 'wp_events_admin');
+
+function display_volunteer_opportunities($atts = [], $content = null)
+{
+    global $wpdb;
+    $table_name = 'volunteer_opportunities';
+
+    // Extract shortcode parameters
+    $atts = shortcode_atts(
+        [
+            'hours' => null,
+            'type' => null,
+        ],
+        $atts,
+        'volunteer'
+    );
+
+    $conditions = [];
+    if (!is_null($atts['hours'])) {
+        $conditions[] = $wpdb->prepare('hours < %d', intval($atts['hours']));
+    }
+    if (!is_null($atts['type'])) {
+        $conditions[] = $wpdb->prepare('type = %s', sanitize_text_field($atts['type']));
+    }
+
+    // Build SQL query with conditions
+    $where_clause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
+    $results = $wpdb->get_results("SELECT * FROM $table_name $where_clause");
+
+    $output = '<table class="volunteer-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Position</th>
+                <th>Organization</th>
+                <th>Type</th>
+                <th>Email</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Hours</th>
+                <th>Skills Required</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+    foreach ($results as $row) {
+
+        // Append rows to the output
+        $output .= '<tr>';
+        $output .= '<td>' . esc_html($row->id) . '</td>';
+        $output .= '<td><strong>' . esc_html($row->position) . '</strong></td>';
+        $output .= '<td>' . esc_html($row->organization) . '</td>';
+        $output .= '<td>' . esc_html($row->type) . '</td>';
+        $output .= '<td>' . esc_html($row->email) . '</td>';
+        $output .= '<td>' . esc_html($row->description) . '</td>';
+        $output .= '<td>' . esc_html($row->location) . '</td>';
+        $output .= '<td>' . esc_html($row->hours) . '</td>';
+        $output .= '<td>' . esc_html($row->skills_required) . '</td>';
+        $output .= '</tr>';
+    }
+
+    $output .= '</tbody></table>';
+
+    // Return the final HTML output
+    return $output;
+}
+add_shortcode('volunteer', 'display_volunteer_opportunities');
