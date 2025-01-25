@@ -78,6 +78,7 @@ function wp_events_admin_page_html()
     // Handle updating a volunteer opportunity
     if (isset($_GET['edit']) && isset($_GET['id'])) {
         $id = intval($_GET['id']);
+        // Set the $row value to trigger editing mode in the form
         $row = $wpdb->get_row("SELECT * FROM $table_name WHERE id = $id");
 
         if (isset($_POST['update'])) {
