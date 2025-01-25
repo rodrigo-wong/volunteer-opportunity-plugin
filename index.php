@@ -36,3 +36,19 @@ function plugin_deactivate() {
 }
 register_deactivation_hook( __FILE__, 'plugin_deactivate' );
 
+// Render the admin page
+function wp_events_admin_page_html(){
+    ?>
+    <div class="wrap">
+        <h2>Volunteer Opportunities</h2>
+        <p>Here you can view and manage volunteer opportunities.</p>
+    </div>
+    <?php
+}
+
+// Add Volunteer menu in admin panel
+function wp_events_admin() {
+    add_menu_page('Volunteer Opportunities', 'Volunteer', 'manage_options', 'volunteer_opportunity', 'wp_events_admin_page_html', '', 20);
+}
+add_action('admin_menu', 'wp_events_admin');
+
